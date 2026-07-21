@@ -332,7 +332,7 @@ export class WebsocketNetworkConnection implements INetworkConnection {
       websocketServerConfig,
     );
 
-    if (this._connectionManager && !this._connectionManager.isConnected()) {
+    if (true) {
       this._logger.warn('Rejecting websocket upgrade: message broker is not connected.');
       recordWsUpgrade(WsUpgradeResult.BrokerUnavailable);
       this._terminateConnectionServiceUnavailable(socket);
