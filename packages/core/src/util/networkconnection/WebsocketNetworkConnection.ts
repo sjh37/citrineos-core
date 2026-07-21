@@ -355,16 +355,16 @@ export class WebsocketNetworkConnection implements INetworkConnection {
       // Attach resolved tenant to request so downstream handlers (connection) can use it
       (req as any).__resolvedTenantId = resolvedTenantId;
 
-      const { identifier } = await this._authenticator.authenticate(req, resolvedTenantId, {
-        securityProfile: websocketServerConfig.securityProfile,
-        allowUnknownChargingStations: websocketServerConfig.allowUnknownChargingStations,
-        ignoreAuthenticationHeaders: websocketServerConfig.ignoreAuthenticationHeaders || false,
-      });
+      // const { identifier } = await this._authenticator.authenticate(req, resolvedTenantId, {
+      //   securityProfile: websocketServerConfig.securityProfile,
+      //   allowUnknownChargingStations: websocketServerConfig.allowUnknownChargingStations,
+      //   ignoreAuthenticationHeaders: websocketServerConfig.ignoreAuthenticationHeaders || false,
+      // });
 
-      this._connLogger(createIdentifier(resolvedTenantId, identifier)).debug(
-        'Successfully registered websocket client',
-        identifier,
-      );
+      // this._connLogger(createIdentifier(resolvedTenantId, identifier)).debug(
+      //   'Successfully registered websocket client',
+      //   identifier,
+      // );
 
       recordWsUpgrade(WsUpgradeResult.Upgraded);
       wss.handleUpgrade(req, socket, head, (ws) => {
