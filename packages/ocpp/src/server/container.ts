@@ -202,7 +202,7 @@ function registerPrimitives(
     exchange: asValue(config.messageBroker.amqp!.exchange),
     amqpUrl: asValue(config.messageBroker.amqp!.url),
     maxCallLengthSeconds: asValue(config.timeouts.maxCallLengthSeconds),
-    maxReconnectDelay: asValue(config.messageBroker.amqp!.maxReconnectDelaySeconds),
+    maxReconnectDelay: asValue(config.messageBroker.amqp!.maxReconnectDelaySeconds * 1000),
     logger: asValue(logger),
     ocppValidator: asValue(ocppValidator),
     cache: asValue(cache),
