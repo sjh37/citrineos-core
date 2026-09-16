@@ -167,7 +167,7 @@ describe('configuration message endpoints', () => {
 
       expect(sendCall).toHaveBeenCalledTimes(1);
       expect(sendCall.mock.calls[0][0].payload).toEqual({ key: ['a', 'b', 'c'] });
-    }, 5000);
+    });
 
     it('treats a non-numeric max-keys configuration as unlimited', async () => {
       findByStationAndKey.mockResolvedValue({ value: 'abc' });
