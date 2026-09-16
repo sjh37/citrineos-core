@@ -18,6 +18,7 @@ import { ApiAuthenticationResult } from '@interfaces/api/auth/api-authentication
 import { ApiAuthorizationResult } from '@interfaces/api/auth/api-authorization-result.js';
 import type { UserInfo } from '@interfaces/api/auth/user-info.js';
 import { CrudRepository } from '@interfaces/repository.js';
+import { OCPPValidator } from '@interfaces/modules/ocpp-validator.js';
 import { MessageConfirmationSchema, QuerySchema } from '@ocpp/persistence/query-schema.js';
 import { mapToCallAction, OcppError } from '@ocpp/rpc/message.js';
 import { RequestBuilder } from '@base-util/request.js';
@@ -330,13 +331,29 @@ describe('QuerySchema', () => {
     });
   });
 
-  it('expands a [] type suffix into an array property and omits required when empty', () => {
+  it('expands a [] type suffix into a single value or array and omits required when empty', () => {
     const schema = QuerySchema('TagQuerySchema', [{ key: 'tags', type: 'string[]' }]) as Record<
       string,
       Record<string, object>
     >;
-    expect(schema.properties.tags).toEqual({ type: 'array', items: { type: 'string' } });
+    expect(schema.properties.tags).toEqual({
+      anyOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
+    });
     expect('required' in schema).toBe(false);
+  });
+
+  it('accepts a single value for a [] type under the server Ajv', () => {
+    const ajv = OCPPValidator.createServerAjvInstance();
+    const validate = ajv.compile(
+      QuerySchema('SlotQuerySchema', [{ key: 'slot', type: 'number[]' }]),
+    );
+    const single = { slot: '1' };
+    const many = { slot: ['1', '2'] };
+
+    expect(validate(single), ajv.errorsText(validate.errors)).toBe(true);
+    expect(single).toEqual({ slot: 1 });
+    expect(validate(many), ajv.errorsText(validate.errors)).toBe(true);
+    expect(many).toEqual({ slot: [1, 2] });
   });
 
   it('marks success required on MessageConfirmationSchema', () => {

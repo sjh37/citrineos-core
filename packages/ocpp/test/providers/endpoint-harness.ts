@@ -6,6 +6,7 @@ import {
   type AbstractEndpoint,
   type BuiltEndpoint,
   type ICommandEndpointMetadata,
+  OCPPValidator,
 } from '@citrineos/base';
 import fastify, { type FastifyInstance } from 'fastify';
 import { Logger, type ILogObj } from 'tslog';
@@ -37,6 +38,8 @@ export async function mountEndpoint(
   prefix = '/commands',
 ): Promise<MountedEndpoint> {
   const server = fastify();
+  const ajv = OCPPValidator.createServerAjvInstance();
+  server.setValidatorCompiler(({ schema }) => ajv.compile(schema));
   const { logger, errors } = aCapturingLogger();
   const built: BuiltEndpoint[] = [{ route, endpoint }];
 

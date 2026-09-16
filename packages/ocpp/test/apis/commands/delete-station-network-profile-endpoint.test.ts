@@ -44,6 +44,20 @@ describe('DeleteStationNetworkProfileEndpoint', () => {
     );
   });
 
+  it('deletes a single slot given once in the query', async () => {
+    const response = await mounted.server.inject({
+      method: 'DELETE',
+      url: `${URL}?ocppConnectionName=cs001&tenantId=${DEFAULT_TENANT_ID}&configurationSlot=1`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(deleteAllByStationIdAndConfigurationSlots).toHaveBeenCalledWith(
+      DEFAULT_TENANT_ID,
+      'cs001',
+      [1],
+    );
+  });
+
   it('reports how many rows it destroyed', async () => {
     const response = await mounted.server.inject({
       method: 'DELETE',
