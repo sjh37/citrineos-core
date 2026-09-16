@@ -359,6 +359,34 @@ describe('ConfigLoader', () => {
       expect(await ConfigLoader.loadWebsocketServersConfig(fileStorage, 'ws.json')).toBe(held);
     });
 
+    it('updates the server object earlier callers are holding', async () => {
+      const fileStorage = mockFileStorage();
+      vi.mocked(fileStorage.getFile).mockResolvedValue(
+        JSON.stringify([
+          server({
+            securityProfile: 2,
+            tlsKeyFilePath: 'key-1.pem',
+            tlsCertificateChainFilePath: 'chain-1.pem',
+          }),
+        ]),
+      );
+
+      const held = await ConfigLoader.loadWebsocketServersConfig(fileStorage, 'ws.json');
+      const heldServer = held[0];
+
+      await ConfigLoader.saveWebsocketServersConfig(fileStorage, 'ws.json', [
+        server({
+          securityProfile: 2,
+          tlsKeyFilePath: 'key-2.pem',
+          tlsCertificateChainFilePath: 'chain-2.pem',
+        }) as unknown as WebsocketServerConfig,
+      ]);
+
+      expect(held[0]).toBe(heldServer);
+      expect(heldServer.tlsKeyFilePath).toBe('key-2.pem');
+      expect(heldServer.tlsCertificateChainFilePath).toBe('chain-2.pem');
+    });
+
     it('reflects a removed server in the array earlier callers are holding', async () => {
       const fileStorage = mockFileStorage();
       vi.mocked(fileStorage.getFile).mockResolvedValue(
