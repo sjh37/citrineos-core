@@ -33,9 +33,9 @@ export const QuerySchema = (name: string, properties: QuerySchemaProperties[]): 
 
     // '[]' denotes an array
     if (type.endsWith('[]')) {
+      const items = { type: type.slice(0, -2) }; // Remove '[]' to get the base type
       (schema['properties'] as Record<string, object>)[key] = {
-        type: 'array',
-        items: { type: type.slice(0, -2) }, // Remove '[]' to get the base type
+        anyOf: [items, { type: 'array', items }],
       };
     } else {
       // non-array types

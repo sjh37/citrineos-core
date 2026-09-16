@@ -39,11 +39,14 @@ export class DeleteStationNetworkProfileEndpoint extends AbstractEndpoint<Delete
   async handle(
     request: FastifyRequest<DeleteStationNetworkProfileRoute>,
   ): Promise<IMessageConfirmation> {
+    const configurationSlots = Array.isArray(request.query.configurationSlot)
+      ? request.query.configurationSlot
+      : [request.query.configurationSlot];
     const deleted =
       await this._chargingStationNetworkProfileRepository.deleteAllByStationIdAndConfigurationSlots(
         request.query.tenantId,
         request.query.ocppConnectionName,
-        request.query.configurationSlot,
+        configurationSlots,
       );
     return {
       success: true,

@@ -25,7 +25,7 @@ export const NetworkProfileQuerySchema = QuerySchema('NetworkProfileQuerySchema'
 
 export interface NetworkProfileDeleteQuerystring {
   ocppConnectionName: string;
-  configurationSlot: number[];
+  configurationSlot: number | number[];
   tenantId: number;
 }
 
