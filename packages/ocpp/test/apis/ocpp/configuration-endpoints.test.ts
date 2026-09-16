@@ -160,6 +160,24 @@ describe('configuration message endpoints', () => {
       expect(sendCall).toHaveBeenCalledTimes(1);
     });
 
+    it('treats a non-positive max-keys configuration as unlimited', async () => {
+      findByStationAndKey.mockResolvedValue({ value: '0' });
+
+      await handle({ key: ['a', 'b', 'c'] });
+
+      expect(sendCall).toHaveBeenCalledTimes(1);
+      expect(sendCall.mock.calls[0][0].payload).toEqual({ key: ['a', 'b', 'c'] });
+    }, 5000);
+
+    it('treats a non-numeric max-keys configuration as unlimited', async () => {
+      findByStationAndKey.mockResolvedValue({ value: 'abc' });
+
+      await handle({ key: ['a', 'b', 'c'] });
+
+      expect(sendCall).toHaveBeenCalledTimes(1);
+      expect(sendCall.mock.calls[0][0].payload).toEqual({ key: ['a', 'b', 'c'] });
+    });
+
     it('captures a send failure as an unsuccessful batch instead of throwing', async () => {
       findByStationAndKey.mockResolvedValue({ value: '1' });
       sendCall.mockRejectedValueOnce(new Error('boom')).mockResolvedValueOnce({
