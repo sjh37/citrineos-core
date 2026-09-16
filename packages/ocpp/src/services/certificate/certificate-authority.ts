@@ -92,9 +92,6 @@ export class CertificateAuthorityService {
     ocppConnectionName: string,
     certificateType?: CertificateSigningUseEnumType | null,
   ): Promise<string> {
-    if (!this._v2gClient) {
-      throw new Error(`V2G client not initialized`);
-    }
     this._logger.info(
       `Getting certificate chain for certificateType: ${certificateType} and ocppConnectionName: ${ocppConnectionName}`,
     );
@@ -102,6 +99,9 @@ export class CertificateAuthorityService {
     switch (certificateType) {
       case CertificateSigningUseEnum.V2GCertificate:
       case CertificateSigningUseEnum.V2G20Certificate: {
+        if (!this._v2gClient) {
+          throw new Error(`V2G client not initialized`);
+        }
         const signedCert = await this._v2gClient.getSignedCertificate(
           extractEncodedContentFromCSR(csrString),
         );
@@ -131,11 +131,11 @@ export class CertificateAuthorityService {
   async getRootCACertificateFromExternalCA(
     certificateType: OCPP2_1.InstallCertificateUseEnumType,
   ): Promise<string> {
-    if (!this._v2gClient) {
-      throw new Error(`V2G client not initialized`);
-    }
     switch (certificateType) {
       case OCPP2_1.InstallCertificateUseEnumType.V2GRootCertificate: {
+        if (!this._v2gClient) {
+          throw new Error(`V2G client not initialized`);
+        }
         const caCerts = await this._v2gClient.getCACertificates();
         const rootCACert = extractCertificateArrayFromEncodedString(caCerts).pop();
         if (rootCACert) {
