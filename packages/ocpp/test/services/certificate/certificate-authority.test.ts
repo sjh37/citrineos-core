@@ -185,6 +185,59 @@ describe('CertificateAuthorityService', () => {
     });
   });
 
+  describe('with only the charging station CA configured', () => {
+    let chargingStationOnlyService: CertificateAuthorityService;
+
+    beforeAll(() => {
+      chargingStationOnlyService = getTestInstance(container, CertificateAuthorityService, {
+        config: {
+          integrations: { chargingStationCA: { name: 'acme' } },
+        } as unknown as SystemConfig,
+        cache: new MemoryCache(),
+        fileStorage: {} as unknown as IFileStorage,
+      });
+    });
+
+    it('gets a charging station certificate chain without a V2G client', async () => {
+      const mockChargingStationCertChain = faker.lorem.word();
+      mockChargingStationClient.getCertificateChain.mockReturnValue(
+        Promise.resolve(mockChargingStationCertChain),
+      );
+
+      const givenCSR = faker.lorem.word();
+      const actualResult = await chargingStationOnlyService.getCertificateChain(
+        givenCSR,
+        faker.lorem.word(),
+        OCPP2_0_1.CertificateSigningUseEnumType.ChargingStationCertificate,
+      );
+
+      expect(mockChargingStationClient.getCertificateChain).toHaveBeenCalledWith(givenCSR);
+      expect(actualResult).toBe(mockChargingStationCertChain);
+    });
+
+    it('gets the CSMS root certificate without a V2G client', async () => {
+      const mockPem = faker.lorem.word();
+      mockChargingStationClient.getRootCACertificate.mockReturnValue(Promise.resolve(mockPem));
+
+      const actualResult = await chargingStationOnlyService.getRootCACertificateFromExternalCA(
+        OCPP2_0_1.InstallCertificateUseEnumType.CSMSRootCertificate,
+      );
+
+      expect(mockChargingStationClient.getRootCACertificate).toHaveBeenCalled();
+      expect(actualResult).toBe(mockPem);
+    });
+
+    it('still refuses a V2G certificate chain', async () => {
+      await expect(
+        chargingStationOnlyService.getCertificateChain(
+          faker.lorem.word(),
+          faker.lorem.word(),
+          OCPP2_0_1.CertificateSigningUseEnumType.V2GCertificate,
+        ),
+      ).rejects.toThrow('V2G client not initialized');
+    });
+  });
+
   describe('getSignedContractData', () => {
     it('returns signed contract data from v2g client', async () => {
       const givenSchemaVersion = faker.lorem.word();
