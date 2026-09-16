@@ -82,7 +82,12 @@ export class ConfigLoader {
     if (this.websocketServers) {
       // In place, not reassigned: consumers hold the array itself, so replacing it here
       // would leave them on the previous one.
-      this.websocketServers.splice(0, this.websocketServers.length, ...validated);
+      const current = this.websocketServers;
+      const updated = validated.map((server) => {
+        const existing = current.find((ws) => ws.id === server.id);
+        return existing ? Object.assign(existing, server) : server;
+      });
+      current.splice(0, current.length, ...updated);
     } else {
       this.websocketServers = validated;
     }
