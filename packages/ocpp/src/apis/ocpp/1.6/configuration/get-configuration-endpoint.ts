@@ -123,7 +123,8 @@ export class GetConfigurationEndpoint extends AbstractMessageEndpoint {
       ocppConnectionName,
       'GetConfigurationMaxKeys',
     );
-    return maxKeysConfig?.value ? parseInt(maxKeysConfig.value, 10) : Number.MAX_SAFE_INTEGER;
+    const maxKeys = parseInt(maxKeysConfig?.value ?? '', 10);
+    return maxKeys > 0 ? maxKeys : Number.MAX_SAFE_INTEGER;
   }
 
   private _splitKeys(keys: string[], maxKeys: number): string[][] {
